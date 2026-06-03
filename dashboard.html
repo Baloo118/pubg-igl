@@ -76,7 +76,10 @@ main{padding:24px}
   .match-stat:nth-child(4),.match-stat:nth-child(5){display:none}
 }
 </style>
-<script src="config.js"></script>
+<script>
+const CONFIG = JSON.parse(localStorage.getItem('igl_config') || sessionStorage.getItem('igl_config') || '{}');
+if(!CONFIG.TEAM_PASSWORD){ location.href='index.html'; }
+</script>
 </head>
 <body>
 
@@ -121,7 +124,7 @@ main{padding:24px}
 
 <script>
 // AUTH CHECK
-if(sessionStorage.getItem('igl_auth')!=='1') location.href='index.html';
+
 document.getElementById('navTeamName').textContent = CONFIG.TEAM_NAME;
 
 const PLAYER_COLORS = ['#00e5a0','#ff6b35','#7b61ff','#ffcc00'];
