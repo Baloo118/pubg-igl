@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PUBG IGL — Дашборд</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Share+Tech+Mono&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#07090c;--s1:#0d1117;--s2:#161b22;--s3:#1e2530;--b1:#252d3a;--b2:#2e3a4a;--ac:#00e5a0;--ac2:#ff6b35;--ac3:#7b61ff;--warn:#ffcc00;--tx:#dde3ee;--tx2:#7a8899;--tx3:#3a4556;--danger:#ff4040;--r:8px}
+html,body{min-height:100%;background:var(--bg);color:var(--tx);font-family:'Inter',sans-serif;font-size:13px}
+/* NAV */
+nav{display:flex;align-items:center;gap:0;padding:0 24px;border-bottom:1px solid var(--b1);background:var(--s1);height:52px;position:sticky;top:0;z-index:100}
+.nav-logo{font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;letter-spacing:2px;color:var(--ac);margin-right:32px;white-space:nowrap}
+.nav-logo span{color:var(--tx2);font-weight:500}
+.nav-links{display:flex;gap:0;flex:1}
+.nav-link{padding:0 16px;height:52px;display:flex;align-items:center;color:var(--tx2);font-family:'Rajdhani',sans-serif;font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;text-decoration:none;border-bottom:2px solid transparent;transition:all .15s;cursor:pointer}
+.nav-link:hover{color:var(--tx)}
+.nav-link.active{color:var(--ac);border-bottom-color:var(--ac)}
+.nav-right{margin-left:auto;display:flex;align-items:center;gap:12px}
+.team-badge{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--tx2);background:var(--s2);border:1px solid var(--b1);padding:4px 10px;border-radius:20px}
+.team-badge strong{color:var(--ac)}
+.logout-btn{padding:4px 12px;border-radius:var(--r);border:1px solid var(--b1);background:transparent;color:var(--tx2);font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:600;cursor:pointer;transition:all .15s}
+.logout-btn:hover{border-color:var(--danger);color:var(--danger)}
+/* MAIN */
+main{padding:24px}
+.page{display:none}.page.active{display:block}
+/* STAT CARDS ROW */
+.stat-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:24px}
+.stat-card{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r);padding:16px}
+.stat-card-label{font-size:10px;color:var(--tx2);font-family:'Rajdhani',sans-serif;font-weight:600;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px}
+.stat-card-val{font-family:'Rajdhani',sans-serif;font-size:28px;font-weight:700;line-height:1;margin-bottom:4px}
+.stat-card-sub{font-size:11px;color:var(--tx2)}
+/* SECTION HEADER */
+.sec-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.sec-title{font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;letter-spacing:1px;color:var(--tx)}
+.sec-action{padding:5px 12px;border-radius:var(--r);border:1px solid var(--b1);background:transparent;color:var(--tx2);font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:600;cursor:pointer;transition:all .15s}
+.sec-action:hover{border-color:var(--ac);color:var(--ac)}
+/* MATCH LIST */
+.match-grid{display:flex;flex-direction:column;gap:8px}
+.match-card{display:grid;grid-template-columns:52px 1fr repeat(4,70px) 100px;align-items:center;gap:12px;padding:12px 16px;background:var(--s1);border:1px solid var(--b1);border-radius:var(--r);cursor:pointer;transition:all .15s;text-decoration:none;color:inherit}
+.match-card:hover{border-color:var(--ac);background:var(--s2);transform:translateX(2px)}
+.match-rank{font-family:'Rajdhani',sans-serif;font-size:26px;font-weight:700;text-align:center;line-height:1}
+.match-info .mi-map{font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:600}
+.match-info .mi-meta{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--tx2);margin-top:2px}
+.match-stat{text-align:center}
+.ms-val{font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:600}
+.ms-lbl{font-size:10px;color:var(--tx2);margin-top:1px}
+.match-analyze-btn{padding:6px 12px;border-radius:var(--r);border:1px solid var(--b1);background:transparent;color:var(--tx2);font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:600;cursor:pointer;transition:all .15s;text-align:center}
+.match-card:hover .match-analyze-btn{border-color:var(--ac);color:var(--ac)}
+/* PLAYER STATS TABLE */
+.players-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+.player-card{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r);padding:16px}
+.player-name{font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.player-dot{width:8px;height:8px;border-radius:50%}
+.pstat{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--b1);font-size:12px}
+.pstat:last-child{border-bottom:none}
+.pstat-k{color:var(--tx2)}
+.pstat-v{font-family:'Share Tech Mono',monospace;color:var(--tx);font-size:11px}
+/* LOADING/ERROR */
+.loading{display:flex;align-items:center;gap:12px;padding:40px;color:var(--tx2);font-size:13px}
+.sp{width:24px;height:24px;border:2px solid var(--b1);border-top-color:var(--ac);border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+.err-box{padding:14px;background:rgba(255,64,64,.07);border:1px solid rgba(255,64,64,.2);border-radius:var(--r);color:var(--danger);font-size:12px;line-height:1.7}
+.empty{padding:40px;text-align:center;color:var(--tx2);font-size:13px}
+/* MAP preview small */
+.map-thumb{width:80px;height:80px;border-radius:6px;object-fit:cover;opacity:.7;border:1px solid var(--b1)}
+/* FILTERS */
+.filter-row{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.filter-btn{padding:5px 12px;border-radius:20px;border:1px solid var(--b1);background:transparent;color:var(--tx2);font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:600;cursor:pointer;transition:all .15s}
+.filter-btn:hover{border-color:var(--ac);color:var(--tx)}
+.filter-btn.active{border-color:var(--ac);color:var(--ac);background:rgba(0,229,160,.08)}
+/* RESPONSIVE */
+@media(max-width:768px){
+  .match-card{grid-template-columns:40px 1fr 60px 80px;gap:8px}
+  .match-stat:nth-child(4),.match-stat:nth-child(5){display:none}
+}
+</style>
+<script src="config.js"></script>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">PUBG <span>//</span> IGL</div>
+  <div class="nav-links">
+    <div class="nav-link active" onclick="showPage('matches',this)">Матчи</div>
+    <div class="nav-link" onclick="showPage('players',this)">Игроки</div>
+  </div>
+  <div class="nav-right">
+    <div class="team-badge"><strong id="navTeamName"></strong></div>
+    <button class="logout-btn" onclick="logout()">Выйти</button>
+  </div>
+</nav>
+
+<main>
+  <!-- ══ MATCHES PAGE ══ -->
+  <div class="page active" id="page-matches">
+    <div class="stat-row" id="teamStats">
+      <div class="loading"><div class="sp"></div>Загружаем статистику...</div>
+    </div>
+    <div class="sec-hdr">
+      <div class="sec-title">Последние матчи</div>
+      <div style="display:flex;gap:8px">
+        <div class="filter-row" id="mapFilter" style="margin:0"></div>
+        <button class="sec-action" onclick="loadAll()">↻ Обновить</button>
+      </div>
+    </div>
+    <div class="match-grid" id="matchGrid">
+      <div class="loading"><div class="sp"></div>Загружаем матчи...</div>
+    </div>
+  </div>
+
+  <!-- ══ PLAYERS PAGE ══ -->
+  <div class="page" id="page-players">
+    <div class="sec-hdr"><div class="sec-title">Статистика игроков</div></div>
+    <div class="players-grid" id="playersGrid">
+      <div class="loading"><div class="sp"></div>Загружаем...</div>
+    </div>
+  </div>
+</main>
+
+<script>
+// AUTH CHECK
+if(sessionStorage.getItem('igl_auth')!=='1') location.href='index.html';
+document.getElementById('navTeamName').textContent = CONFIG.TEAM_NAME;
+
+const PLAYER_COLORS = ['#00e5a0','#ff6b35','#7b61ff','#ffcc00'];
+const MAP_NAMES = {Baltic_Main:'Erangel',Desert_Main:'Miramar',Tiger_Main:'Taego',Savage_Main:'Sanhok',Vikendi_Main:'Vikendi',Kiki_Main:'Deston',Summerland_Main:'Karakin'};
+const MAP_COLORS = {Baltic_Main:'#00e5a0',Desert_Main:'#ffcc00',Tiger_Main:'#ff6b35',Savage_Main:'#7b61ff',Vikendi_Main:'#85b7eb',Kiki_Main:'#ff9900',Summerland_Main:'#ff4488'};
+
+let allMatches = [];
+let playerStats = {};
+let activeMapFilter = 'all';
+
+function logout(){ sessionStorage.clear(); location.href='index.html'; }
+
+function showPage(name, el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-link').forEach(l=>l.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  if(el) el.classList.add('active');
+  if(name==='players') renderPlayers();
+}
+
+// ══ LOAD ALL DATA ══
+async function loadAll(){
+  document.getElementById('matchGrid').innerHTML='<div class="loading"><div class="sp"></div>Загружаем матчи...</div>';
+  document.getElementById('teamStats').innerHTML='<div class="loading"><div class="sp"></div>Загружаем статистику...</div>';
+
+  if(!CONFIG.API_KEY){ showConfigError(); return; }
+
+  try{
+    // Fetch all players at once
+    const namesParam = CONFIG.PLAYERS.join(',');
+    const res = await fetch(`https://api.pubg.com/shards/${CONFIG.SHARD}/players?filter[playerNames]=${encodeURIComponent(namesParam)}`,{
+      headers:{'Authorization':'Bearer '+CONFIG.API_KEY,'Accept':'application/vnd.api+json'}
+    });
+    if(res.status===401){showApiError('Неверный API ключ в config.js');return;}
+    if(!res.ok){showApiError('HTTP '+res.status);return;}
+    const data = await res.json();
+
+    if(!data.data?.length){showApiError('Игроки не найдены. Проверь никнеймы в config.js');return;}
+
+    // Build player id map
+    const playerMap = {};
+    data.data.forEach(p=>{ playerMap[p.attributes.name]=p.id; });
+
+    // Get matches from first found player
+    const mainPlayer = data.data[0];
+    const matchIds = mainPlayer.relationships.matches.data.slice(0,20).map(m=>m.id);
+
+    await loadMatches(matchIds, playerMap);
+  } catch(err){
+    const isNetErr = err.name==='TypeError'||err.message.includes('fetch');
+    showApiError(isNetErr?'Ошибка сети — убедись что сайт открыт через https://':err.message);
+  }
+}
+
+async function loadMatches(matchIds, playerMap){
+  const grid = document.getElementById('matchGrid');
+  grid.innerHTML='<div class="loading"><div class="sp"></div>Загружаем историю...</div>';
+  allMatches = [];
+  playerStats = {};
+  CONFIG.PLAYERS.forEach(n=>{ playerStats[n]={name:n,matches:0,kills:0,dmg:0,wins:0,top10:0,survived:0}; });
+
+  const mapFilterMaps = new Set();
+
+  for(const id of matchIds){
+    try{
+      const r = await fetch(`https://api.pubg.com/shards/${CONFIG.SHARD}/matches/${id}`,{headers:{'Accept':'application/vnd.api+json'}});
+      if(!r.ok) continue;
+      const md = await r.json();
+      const attr = md.data.attributes;
+      const mapN = attr.mapName||'';
+      const mapDisplay = MAP_NAMES[mapN]||mapN.replace('_Main','');
+      mapFilterMaps.add(mapN);
+
+      // Find stats for each of our players
+      const inc = md.included||[];
+      const teamStats = [];
+      CONFIG.PLAYERS.forEach((name,idx)=>{
+        const part = inc.find(i=>i.type==='participant'&&i.attributes?.stats?.name===name);
+        if(!part) return;
+        const s = part.attributes.stats;
+        teamStats.push({name,idx,rank:s.winPlace,kills:s.kills,dmg:Math.round(s.damageDealt),headshots:s.headshotKills,survived:Math.round(s.timeSurvived/60),playerId:s.playerId});
+        // Accumulate player stats
+        if(playerStats[name]){
+          playerStats[name].matches++;
+          playerStats[name].kills+=s.kills;
+          playerStats[name].dmg+=Math.round(s.damageDealt);
+          if(s.winPlace===1) playerStats[name].wins++;
+          if(s.winPlace<=10) playerStats[name].top10++;
+          playerStats[name].survived+=Math.round(s.timeSurvived/60);
+        }
+      });
+
+      if(teamStats.length===0) continue;
+      const bestRank = Math.min(...teamStats.map(s=>s.rank||100));
+      const totalKills = teamStats.reduce((a,b)=>a+(b.kills||0),0);
+      const totalDmg = teamStats.reduce((a,b)=>a+(b.dmg||0),0);
+      const d = new Date(attr.createdAt);
+
+      allMatches.push({id,mapN,mapDisplay,mapColor:MAP_COLORS[mapN]||'#888',attr,teamStats,bestRank,totalKills,totalDmg,date:d,md});
+    } catch(e){ continue; }
+  }
+
+  // Build map filter
+  buildMapFilter([...mapFilterMaps]);
+  renderMatches();
+  renderTeamStats();
+}
+
+function buildMapFilter(maps){
+  const el = document.getElementById('mapFilter');
+  el.innerHTML='';
+  const all = document.createElement('button');
+  all.className='filter-btn active'; all.textContent='Все';
+  all.onclick=()=>setMapFilter('all',all);
+  el.appendChild(all);
+  maps.forEach(m=>{
+    if(!MAP_NAMES[m]) return;
+    const btn = document.createElement('button');
+    btn.className='filter-btn';
+    btn.textContent=MAP_NAMES[m];
+    btn.style.setProperty('--fc',MAP_COLORS[m]||'#888');
+    btn.onclick=()=>setMapFilter(m,btn);
+    el.appendChild(btn);
+  });
+}
+
+function setMapFilter(map,btn){
+  activeMapFilter=map;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderMatches();
+}
+
+function renderMatches(){
+  const grid = document.getElementById('matchGrid');
+  const filtered = activeMapFilter==='all'?allMatches:allMatches.filter(m=>m.mapN===activeMapFilter);
+  if(!filtered.length){grid.innerHTML='<div class="empty">Нет матчей</div>';return;}
+  grid.innerHTML='';
+  filtered.forEach(m=>{
+    const rankColor = m.bestRank===1?'#ffcc00':m.bestRank<=3?'#00e5a0':m.bestRank<=10?'#7b61ff':m.mapColor;
+    const dateStr = m.date.toLocaleDateString('ru',{day:'2-digit',month:'2-digit'});
+    const dur = Math.round((m.attr.duration||0)/60);
+    const div = document.createElement('div');
+    div.className='match-card';
+    div.innerHTML=`
+      <div class="match-rank" style="color:${rankColor}">#${m.bestRank}</div>
+      <div class="match-info">
+        <div class="mi-map" style="color:${m.mapColor}">${m.mapDisplay}</div>
+        <div class="mi-meta">${dateStr} · ${dur} мин</div>
+      </div>
+      <div class="match-stat">
+        <div class="ms-val" style="color:${rankColor}">${m.totalKills}</div>
+        <div class="ms-lbl">kills</div>
+      </div>
+      <div class="match-stat">
+        <div class="ms-val">${m.totalDmg}</div>
+        <div class="ms-lbl">dmg</div>
+      </div>
+      <div class="match-stat">
+        <div class="ms-val">${m.teamStats.length}</div>
+        <div class="ms-lbl">игроков</div>
+      </div>
+      <div class="match-stat">
+        <div class="ms-val" style="font-size:11px;color:var(--tx2)">${m.teamStats.map(s=>s.name.slice(0,8)).join(', ')}</div>
+      </div>
+      <div class="match-analyze-btn">Анализ →</div>`;
+    div.onclick=()=>openMatch(m);
+    grid.appendChild(div);
+  });
+}
+
+function renderTeamStats(){
+  const el = document.getElementById('teamStats');
+  if(!allMatches.length){el.innerHTML='';return;}
+  const total = allMatches.length;
+  const wins = allMatches.filter(m=>m.bestRank===1).length;
+  const top5 = allMatches.filter(m=>m.bestRank<=5).length;
+  const avgKills = (allMatches.reduce((a,b)=>a+b.totalKills,0)/total).toFixed(1);
+  const avgDmg = Math.round(allMatches.reduce((a,b)=>a+b.totalDmg,0)/total/CONFIG.PLAYERS.length);
+  const wr = Math.round(wins/total*100);
+  el.innerHTML=`
+    <div class="stat-card"><div class="stat-card-label">Матчей</div><div class="stat-card-val" style="color:var(--ac)">${total}</div><div class="stat-card-sub">загружено</div></div>
+    <div class="stat-card"><div class="stat-card-label">Винрейт</div><div class="stat-card-val" style="color:${wr>=20?'var(--ac)':'var(--warn)'}">${wr}%</div><div class="stat-card-sub">${wins} побед</div></div>
+    <div class="stat-card"><div class="stat-card-label">Топ-5</div><div class="stat-card-val" style="color:var(--ac3)">${Math.round(top5/total*100)}%</div><div class="stat-card-sub">${top5} матчей</div></div>
+    <div class="stat-card"><div class="stat-card-label">Avg Kills</div><div class="stat-card-val">${avgKills}</div><div class="stat-card-sub">на матч (команда)</div></div>
+    <div class="stat-card"><div class="stat-card-label">Avg Dmg</div><div class="stat-card-val">${avgDmg}</div><div class="stat-card-sub">на игрока</div></div>`;
+}
+
+function renderPlayers(){
+  const el = document.getElementById('playersGrid');
+  const hasData = Object.values(playerStats).some(p=>p.matches>0);
+  if(!hasData){el.innerHTML='<div class="empty">Сначала загрузи матчи на вкладке "Матчи"</div>';return;}
+  el.innerHTML='';
+  CONFIG.PLAYERS.forEach((name,idx)=>{
+    const s = playerStats[name];
+    if(!s||s.matches===0) return;
+    const kd = (s.kills/Math.max(1,s.matches)).toFixed(2);
+    const avgDmg = Math.round(s.dmg/s.matches);
+    const wr = Math.round(s.wins/s.matches*100);
+    const t10 = Math.round(s.top10/s.matches*100);
+    const avgSurv = Math.round(s.survived/s.matches);
+    const col = PLAYER_COLORS[idx]||'#888';
+    const div = document.createElement('div');
+    div.className='player-card';
+    div.innerHTML=`
+      <div class="player-name"><div class="player-dot" style="background:${col}"></div>${name}</div>
+      <div class="pstat"><span class="pstat-k">Матчей</span><span class="pstat-v">${s.matches}</span></div>
+      <div class="pstat"><span class="pstat-k">K/D</span><span class="pstat-v" style="color:${kd>=2?'var(--ac)':kd>=1?'var(--warn)':'var(--danger)'}">${kd}</span></div>
+      <div class="pstat"><span class="pstat-k">Avg Dmg</span><span class="pstat-v">${avgDmg}</span></div>
+      <div class="pstat"><span class="pstat-k">Винрейт</span><span class="pstat-v" style="color:${wr>=15?'var(--ac)':'var(--tx2)'}">${wr}%</span></div>
+      <div class="pstat"><span class="pstat-k">Топ-10</span><span class="pstat-v">${t10}%</span></div>
+      <div class="pstat"><span class="pstat-k">Avg выжил</span><span class="pstat-v">${avgSurv} мин</span></div>`;
+    el.appendChild(div);
+  });
+}
+
+function openMatch(m){
+  // Store match data for match.html
+  sessionStorage.setItem('cur_match', JSON.stringify({
+    id:m.id, mapN:m.mapN, mapDisplay:m.mapDisplay,
+    teamStats:m.teamStats, date:m.date.toISOString(), attr:m.attr
+  }));
+  sessionStorage.setItem('cur_match_id', m.id);
+  location.href='match.html';
+}
+
+function showApiError(msg){
+  document.getElementById('matchGrid').innerHTML=`<div class="err-box">✕ ${msg}</div>`;
+  document.getElementById('teamStats').innerHTML='';
+}
+
+function showConfigError(){
+  document.getElementById('matchGrid').innerHTML=`
+    <div class="err-box">
+      ⚙️ <b>Нужно настроить config.js</b><br><br>
+      Открой файл <code>config.js</code> и заполни:<br>
+      • <code>API_KEY</code> — твой PUBG API ключ<br>
+      • <code>PLAYERS</code> — никнеймы команды<br>
+      • <code>TEAM_PASSWORD</code> — пароль для входа<br>
+      • <code>TEAM_NAME</code> — название команды
+    </div>`;
+  document.getElementById('teamStats').innerHTML='';
+}
+
+// AUTO LOAD
+loadAll();
+</script>
+</body>
+</html>
